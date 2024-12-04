@@ -10,7 +10,7 @@ const EMICalculator = () => {
     const [MonthlyEMI, setMonthlyEMI] = useState('')
 
     const handleShowModal = () => setShowModal(true)
-    const handleCloseModal = () => setShowModal(false)
+    const handleCloseModal = () => { setShowModal(false); setMonthlyEMI('') }
 
     const validateFormSchema = Yup.object().shape({
         principle: Yup.number()
