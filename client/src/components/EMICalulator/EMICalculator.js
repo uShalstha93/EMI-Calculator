@@ -14,11 +14,14 @@ const EMICalculator = () => {
 
     const validateFormSchema = Yup.object().shape({
         principle: Yup.number()
-            .required("Amount is Required!"),
+            .required("Amount is Required!")
+            .moreThan(0, 'Amount Shouldnot be 0 or Less Than 0'),
         rate: Yup.number()
-            .required('Interest Rate is Required!'),
+            .required('Interest Rate is Required!')
+            .moreThan(0, 'Rate Shouldnot be 0 or Less Than 0'),
         period: Yup.number()
-            .required('Months is Required!'),
+            .required('Months is Required!')
+            .moreThan(0, 'Term Shouldnot be 0 or Less Than 0'),
     })
 
     const calculateEMI = (data) => {
@@ -100,6 +103,7 @@ const EMICalculator = () => {
                                     </div>
                                     <div className='result'>
                                         <label>Monthly Payment (EMI) :</label>
+                                        <span>Rs. </span>
                                         <input type='number' name='emi'
                                             disabled={true}
                                             defaultValue={MonthlyEMI}
