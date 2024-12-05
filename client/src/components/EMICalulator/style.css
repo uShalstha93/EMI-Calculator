@@ -1,5 +1,6 @@
 .open-button,
-.calculate {
+.calculate,
+.schedule {
     --offset: 1px;
     position: relative;
     background: rgb(55, 21, 90);
@@ -21,7 +22,8 @@
 } */
 
 .open-button::before,
-.calculate::before {
+.calculate::before,
+.schedule::before {
     content: "";
     background: conic-gradient(transparent 270deg, white, transparent);
     position: absolute;
@@ -47,7 +49,8 @@
 } */
 
 .open-button::after,
-.calculate::after {
+.calculate::after,
+.schedule::after {
     content: "";
     background: inherit;
     border-radius: inherit;
@@ -67,7 +70,8 @@
 } */
 
 .open-button button,
-.calculate button {
+.calculate button,
+.schedule button {
     background: transparent;
     color: white;
     font-size: 1rem;
@@ -140,6 +144,11 @@
 
 .result {
     align-items: center;
+    width: 80%;
+}
+
+.schedule {
+    width: 30%;
 }
 
 .result label {
@@ -147,6 +156,7 @@
     font-weight: 600;
     padding: 5px;
     margin: 5px;
+    width: 210px;
 }
 
 .result input[type='number'] {
@@ -163,6 +173,35 @@
 .error-message {
     color: red;
     margin: 5px;
+}
+
+.detail {
+    display: flex;
+    margin: 5px;
+    padding: 5px;
+}
+
+.detail .detail-label {
+    width: 60%;
+}
+
+.detail .detail-label label {
+    margin: 0 5px;
+    padding: 0 5px;
+    font-weight: 600;
+    color: white;
+}
+
+.schedule-tbl {
+    margin: 5px;
+    padding: 5px;
+    /* background-color: red; */
+}
+
+.schedule-tbl .schedule-tbl-main .tbl-head,
+.schedule-tbl .schedule-tbl-main .tbl-body {
+    background: transparent;
+    color: white;
 }
 
 @keyframes rotate {
@@ -182,7 +221,17 @@
         /* font-size: 12px; */
     }
 
-    .result label {
+    .Rowbody {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .Rowbody .result {
+        display: flex;
+        width: 100%;
+    }
+
+    .Rowbody .result label {
         width: 50%;
     }
 
