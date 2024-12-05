@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Container, Modal, Col, Form } from 'react-bootstrap'
+import { Container, Modal, Col, Form, Table } from 'react-bootstrap'
 import './style.css'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
@@ -8,6 +8,11 @@ const EMICalculator = () => {
 
     const [showModal, setShowModal] = useState(false)
     const [MonthlyEMI, setMonthlyEMI] = useState('')
+    const [showPrincipal, setShowPrincipal] = useState(0)
+    const [showRate, setShowRate] = useState(0)
+    const [showPeriod, SetShowPeriod] = useState(0)
+    const [kistaSchedule, setKistaSchedule] = useState([])
+    const [showSchedule, setShowSchedule] = useState(false)
 
     const handleShowModal = () => setShowModal(true)
     const handleCloseModal = () => { setShowModal(false); setMonthlyEMI('') }
@@ -25,27 +30,73 @@ const EMICalculator = () => {
     })
 
     const calculateEMI = (data) => {
+
         let p = data.principle
         let r = (data.rate / 100) / 12;
-        let power = data.period
-        let toPower = Math.pow(1 + r, power)
+        let kistaNo = data.period
+        let toPower = Math.pow(1 + r, kistaNo)
         const result = p * r * (toPower / (toPower - 1))
+
         setMonthlyEMI(Math.round(result))
+
+        setShowPrincipal(data.principle)
+        setShowRate(data.rate);
+        SetShowPeriod(data.period);
+
+        const emi = Math.round(result);
+        const schedule = []
+
+        for (let i = 1; i < kistaNo; i++) {
+            const int = p * r;
+            const principalBalance = p;
+            const principleRepay = emi - int;
+            p -= principleRepay;
+
+            schedule.push({
+                kista: i,
+                principal: Math.round(principalBalance),
+                interest: Math.round(int),
+                principalpmt: Math.round(principleRepay),
+                emi: emi,
+                remBalance: Math.round(p)
+            });
+        }
+
+        const lastKista = kistaNo;
+        const lastPrincipalBalance = p;
+        const lastInt = p * r;
+        const lastPrincipalpmt = lastPrincipalBalance;
+        const lastEmi = lastInt + lastPrincipalBalance;
+        const lastRemBalance = lastPrincipalBalance - lastPrincipalpmt;
+
+        schedule.push({
+            kista: lastKista,
+            principal: Math.round(lastPrincipalBalance),
+            interest: Math.round(lastInt),
+            principalpmt: Math.round(lastPrincipalpmt),
+            emi: Math.round(lastEmi),
+            remBalance: Math.round(lastRemBalance)
+        });
+        // console.log(Math.round(lastKista), Math.round(lastPrincipalBalance), Math.round(lastInt), Math.round(lastPrincipalpmt), Math.round(lastEmi), Math.round(lastRemBalance))
+
+        setKistaSchedule(schedule)
+        // setEMI(Math.round(result))
     }
 
     return (
         <>
             <div className="open-button">
-                <button className="open" onClick={handleShowModal}>Click Me !</button>
+                <button className="open" onClick={handleShowModal}>EMI Calculator</button>
             </div>
 
-            <Modal show={showModal} onHide={handleCloseModal} size='md' centered>
+            <Modal show={showModal} onHide={handleCloseModal} size='lg' centered>
                 <Modal.Header className='gamemodalheader' closeButton>
                     <Modal.Title>
-                        <h1>EMI Calculator</h1>
+                        <h1>EMI Calculator & Kista Schedule</h1>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body className='gamemodalbody'>
+
                     <Formik
                         initialValues={{ principle: '', rate: '', period: '' }}
                         validationSchema={validateFormSchema}
@@ -98,21 +149,63 @@ const EMICalculator = () => {
                                             ) : null}
                                         </div>
                                     </div>
-                                    <div className='calculate'>
-                                        <button type='submit'>CALCULATE</button>
-                                    </div>
-                                    <div className='result'>
-                                        <label>Monthly Payment (EMI) :</label>
-                                        <span>Rs. </span>
-                                        <input type='number' name='emi'
-                                            disabled={true}
-                                            defaultValue={MonthlyEMI}
-                                        />
+                                    <div className='Row Rowbody'>
+                                        <div className='calculate'>
+                                            <button type='submit'>CALCULATE</button>
+                                        </div>
+                                        <div className='result'>
+                                            <label>Monthly Payment (EMI) :</label>
+                                            <span>Rs. </span>
+                                            <input type='number' name='emi'
+                                                disabled={true}
+                                                defaultValue={MonthlyEMI}
+                                            />
+                                        </div>
                                     </div>
                                 </Container>
                             </Form>
                         )}
                     </Formik>
+
+                    <div className='detail'>
+                        <div className='detail-label'>
+                            <label>{`Principal : Rs. ${showPrincipal}`}</label>
+                            <label>{`Rate : ${showRate}%`}</label>
+                            <label>{`Period : ${showPeriod} Months`}</label>
+                        </div>
+                        <div className='schedule'>
+                            <button onClick={() => setShowSchedule(true)}>SHOW SCHEDULE</button>
+                        </div>
+                    </div>
+
+                    <div className='schedule-tbl shadow'>
+                        <Table responsive striped bordered hover size='md' className='schedule-tbl-main'>
+                            <thead>
+                                <tr>
+                                    <th className='tbl-head'>S.N.</th>
+                                    <th className='tbl-head'>Principal</th>
+                                    <th className='tbl-head'>Int. Pmt</th>
+                                    <th className='tbl-head'>Loan Pmt</th>
+                                    <th className='tbl-head'>Total Pmt</th>
+                                    <th className='tbl-head'>Remaining Loan</th>
+                                </tr>
+                            </thead>
+                            {showSchedule && (
+                                <tbody>
+                                    {kistaSchedule.map((item, id) => (
+                                        <tr key={id}>
+                                            <td className='tbl-body'>{item.kista}</td>
+                                            <td className='tbl-body'>{item.principal}</td>
+                                            <td className='tbl-body'>{item.interest}</td>
+                                            <td className='tbl-body'>{item.principalpmt}</td>
+                                            <td className='tbl-body'>{item.emi}</td>
+                                            <td className='tbl-body'>{item.remBalance}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            )}
+                        </Table>
+                    </div>
                 </Modal.Body>
             </Modal>
         </>
