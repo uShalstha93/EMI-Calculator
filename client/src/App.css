@@ -48,6 +48,18 @@
   color: #61dafb;
 }
 
+.App-header .modals {
+  display: flex;
+}
+
+.App-header .modals .emicalc {
+  margin-right: 10px;
+}
+
+.App-header .modals .kista {
+  margin-left: 10px;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
