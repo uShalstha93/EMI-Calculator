@@ -36,6 +36,9 @@ const EMICalculator = () => {
         let kistaNo = data.period
         let toPower = Math.pow(1 + r, kistaNo)
         const result = p * r * (toPower / (toPower - 1))
+        let intSum = 0;
+        let loanpmtSum = 0;
+        let emipmtSum = 0;
 
         setMonthlyEMI(Math.round(result))
 
@@ -46,14 +49,22 @@ const EMICalculator = () => {
         const emi = Math.round(result);
         const schedule = []
 
+        const currentDate = new Date();
+
         for (let i = 1; i < kistaNo; i++) {
             const int = p * r;
             const principalBalance = p;
             const principleRepay = emi - int;
             p -= principleRepay;
 
+            const paymentDate = new Date(currentDate.setMonth(currentDate.getMonth() + 1)).toLocaleDateString();
+            intSum += int
+            loanpmtSum += principleRepay
+            emipmtSum += emi
+
             schedule.push({
                 kista: i,
+                date: paymentDate,
                 principal: Math.round(principalBalance),
                 interest: Math.round(int),
                 principalpmt: Math.round(principleRepay),
@@ -63,20 +74,35 @@ const EMICalculator = () => {
         }
 
         const lastKista = kistaNo;
-        const lastPrincipalBalance = p;
-        const lastInt = p * r;
+        const lastPaymentDate = new Date(currentDate.setMonth(currentDate.getMonth() + 1)).toLocaleDateString();
+        const lastPrincipalBalance = Math.round(p);
+        const lastInt = Math.round(p * r);
         const lastPrincipalpmt = lastPrincipalBalance;
         const lastEmi = lastInt + lastPrincipalBalance;
         const lastRemBalance = lastPrincipalBalance - lastPrincipalpmt;
+        const totalIntSum = Math.round(intSum + lastInt);
+        const totalLoanpmtSum = Math.round(loanpmtSum + lastPrincipalpmt);
+        const totalpmtSum = Math.round(emipmtSum + lastEmi);
 
         schedule.push({
             kista: lastKista,
-            principal: Math.round(lastPrincipalBalance),
-            interest: Math.round(lastInt),
-            principalpmt: Math.round(lastPrincipalpmt),
-            emi: Math.round(lastEmi),
-            remBalance: Math.round(lastRemBalance)
+            date: lastPaymentDate,
+            principal: lastPrincipalBalance,
+            interest: lastInt,
+            principalpmt: lastPrincipalpmt,
+            emi: lastEmi,
+            remBalance: lastRemBalance
         });
+
+        schedule.push({
+            kista: '',
+            date: 'Total',
+            principal: '-',
+            interest: totalIntSum,
+            principalpmt: totalLoanpmtSum,
+            emi: totalpmtSum,
+            remBalance: '-'
+        })
         // console.log(Math.round(lastKista), Math.round(lastPrincipalBalance), Math.round(lastInt), Math.round(lastPrincipalpmt), Math.round(lastEmi), Math.round(lastRemBalance))
 
         setKistaSchedule(schedule)
@@ -183,6 +209,7 @@ const EMICalculator = () => {
                             <thead>
                                 <tr>
                                     <th className='tbl-head'>S.N.</th>
+                                    <th className='tbl-head'>Kista Date</th>
                                     <th className='tbl-head'>Principal</th>
                                     <th className='tbl-head'>Int. Pmt</th>
                                     <th className='tbl-head'>Loan Pmt</th>
@@ -195,6 +222,7 @@ const EMICalculator = () => {
                                     {kistaSchedule.map((item, id) => (
                                         <tr key={id}>
                                             <td className='tbl-body'>{item.kista}</td>
+                                            <td className='tbl-body'>{item.date}</td>
                                             <td className='tbl-body'>{item.principal}</td>
                                             <td className='tbl-body'>{item.interest}</td>
                                             <td className='tbl-body'>{item.principalpmt}</td>
